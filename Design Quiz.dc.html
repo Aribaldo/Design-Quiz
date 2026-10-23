@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F0E8;color:#141414;font-family:'Bricolage Grotesque',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#2B3BFF}a:hover{color:#141414}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px;box-sizing:border-box">
+<div style="width:100%;max-width:760px;display:flex;flex-direction:column;gap:32px">
+
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid #141414;padding-bottom:12px">
+  <span>Design IQ — Vol. 01</span>
+  <span>{{ headerRight }}</span>
+</div>
+
+<sc-if value="{{ isIntro }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:28px;padding-top:24px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#2B3BFF">25 questions · ~6 minutes</div>
+    <h1 style="margin:0;font-size:clamp(48px,10vw,104px);line-height:0.92;font-weight:800;letter-spacing:-0.035em;text-wrap:balance">How good is your eye, really?</h1>
+    <p style="margin:0;font-size:20px;line-height:1.45;max-width:560px;text-wrap:pretty">Software, color theory, typography, design principles and a little brand trivia. Graded at the end — honestly, and with some attitude.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <span style="border:1.5px solid #141414;border-radius:999px;padding:6px 14px;font-size:14px">Software</span>
+      <span style="border:1.5px solid #141414;border-radius:999px;padding:6px 14px;font-size:14px">Color theory</span>
+      <span style="border:1.5px solid #141414;border-radius:999px;padding:6px 14px;font-size:14px">Principles</span>
+      <span style="border:1.5px solid #141414;border-radius:999px;padding:6px 14px;font-size:14px">Typography</span>
+      <span style="border:1.5px solid #141414;border-radius:999px;padding:6px 14px;font-size:14px">Brand GK</span>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <button onClick="{{ start }}" style="font-family:inherit;font-size:20px;font-weight:600;background:#141414;color:#F3F0E8;border:none;border-radius:999px;padding:18px 36px;cursor:pointer" style-hover="background:#2B3BFF">Start the quiz →</button>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#555">Keys 1–4 to answer, Enter to continue</span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isQuiz }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:28px">
+    <div style="height:6px;background:#DDD8CB;border-radius:3px;overflow:hidden">
+      <div style="height:100%;background:#2B3BFF;width:{{ progressPct }};transition:width .3s"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;background:#141414;color:#F3F0E8;padding:6px 12px;border-radius:4px">{{ q.cat }}</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#555;white-space:nowrap;flex:none">Score {{ score }}</span>
+    </div>
+    <h2 style="margin:0;font-size:clamp(28px,5vw,44px);line-height:1.1;font-weight:600;letter-spacing:-0.02em;text-wrap:pretty">{{ q.q }}</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px">
+      <sc-for list="{{ opts }}" as="o" hint-placeholder-count="4">
+        <button onClick="{{ o.pick }}" style="font-family:inherit;text-align:left;display:flex;gap:14px;align-items:center;font-size:18px;padding:18px 20px;border-radius:12px;cursor:{{ o.cursor }};background:{{ o.bg }};color:{{ o.fg }};border:2px solid {{ o.border }};transition:background .15s" style-hover="border-color:#141414">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid currentColor">{{ o.key }}</span>
+          <span style="flex:1;line-height:1.3">{{ o.text }}</span>
+          <span style="font-weight:800">{{ o.mark }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showFeedback }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:16px;border-top:2px solid #141414;padding-top:20px">
+        <div style="font-size:24px;font-weight:800;color:{{ verdictColor }}">{{ verdict }}</div>
+        <sc-if value="{{ showExplain }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:0;font-size:17px;line-height:1.5;text-wrap:pretty">{{ q.why }}</p>
+        </sc-if>
+        <div>
+          <button onClick="{{ next }}" style="font-family:inherit;font-size:18px;font-weight:600;background:#141414;color:#F3F0E8;border:none;border-radius:999px;padding:14px 28px;cursor:pointer" style-hover="background:#2B3BFF">{{ nextLabel }}</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:36px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:24px;align-items:end">
+      <div style="font-size:clamp(140px,28vw,240px);font-weight:800;line-height:0.8;letter-spacing:-0.06em;color:#2B3BFF">{{ grade.letter }}</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase">Your grade · {{ score }}/25 · {{ pct }}</div>
+        <div style="font-size:32px;font-weight:800;line-height:1.05;letter-spacing:-0.02em">{{ grade.title }}</div>
+        <p style="margin:0;font-size:19px;line-height:1.4;text-wrap:pretty">{{ grade.remark }}</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;border-top:2px solid #141414;padding-top:20px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase">By category</div>
+      <sc-for list="{{ breakdown }}" as="b" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 48px;gap:14px;align-items:center;font-size:16px">
+          <span>{{ b.cat }}</span>
+          <div style="height:10px;background:#DDD8CB;border-radius:5px;overflow:hidden"><div style="height:100%;background:#141414;width:{{ b.w }}"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;text-align:right">{{ b.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ hasMisses }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px;border-top:2px solid #141414;padding-top:20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase">What you missed</div>
+        <sc-for list="{{ misses }}" as="m" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px 0;border-bottom:1px solid #CFC9BA">
+            <span style="font-size:17px;font-weight:600;line-height:1.3">{{ m.q }}</span>
+            <span style="font-size:15px;color:#444">You said <s>{{ m.yours }}</s> — answer: <b style="color:#1F7A45">{{ m.right }}</b></span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button onClick="{{ start }}" style="font-family:inherit;font-size:18px;font-weight:600;background:#141414;color:#F3F0E8;border:none;border-radius:999px;padding:16px 32px;cursor:pointer" style-hover="background:#2B3BFF">Retake quiz</button>
+    </div>
+  </div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;shuffle&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showExplanations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const QS = [
+  {cat:'Software',q:'Which Adobe app is built primarily for vector graphics?',o:['Photoshop','Illustrator','Lightroom','Premiere Pro'],a:1,why:'Illustrator works with paths and points, so artwork scales infinitely. Photoshop is pixel-based.'},
+  {cat:'Color',q:'On the traditional RYB color wheel, what is the complement of blue?',o:['Green','Purple','Orange','Red'],a:2,why:'Complements sit opposite each other on the wheel — blue and orange.'},
+  {cat:'Principles',q:'Which Gestalt principle says elements placed close together are seen as a group?',o:['Similarity','Closure','Continuity','Proximity'],a:3,why:'Proximity: distance alone tells the eye what belongs together.'},
+  {cat:'Type',q:'In typography, what is "leading"?',o:['Space between lines','Space between letter pairs','Stroke thickness','Height of lowercase x'],a:0,why:'Named after the strips of lead placed between lines of metal type.'},
+  {cat:'Brands',q:'Which logo hides an arrow in the negative space between two letters?',o:['Amazon','FedEx','Toyota','Unilever'],a:1,why:'Look between the "E" and the "x" in FedEx.'},
+  {cat:'Color',q:'In CMYK, what does the "K" stand for?',o:['Kelvin','Black','Key','Kodak'],a:2,why:'"Key" — the key plate that carries detail, usually printed in black.'},
+  {cat:'Software',q:'Figma\'s Auto Layout is modelled most closely on which web concept?',o:['CSS Flexbox','CSS Floats','HTML tables','SVG filters'],a:0,why:'Direction, gap, padding, alignment — it is Flexbox with a friendlier face.'},
+  {cat:'Type',q:'Adjusting the space between one specific pair of letters is called…',o:['Tracking','Kerning','Leading','Hinting'],a:1,why:'Kerning is pair-specific; tracking adjusts spacing across a whole range of text.'},
+  {cat:'Brands',q:'Roughly how much was designer Carolyn Davidson first paid for the Nike Swoosh?',o:['$35','$500','$5,000','$50,000'],a:0,why:'$35 in 1971. Nike later gifted her shares and a gold Swoosh ring.'},
+  {cat:'Principles',q:'The golden ratio is approximately…',o:['1.414','1.5','1.618','3.141'],a:2,why:'φ ≈ 1.618. (1.414 is √2, the ratio behind A-series paper.)'},
+  {cat:'Color',q:'What color is #FF00FF?',o:['Cyan','Magenta','Yellow','Lime'],a:1,why:'Full red + full blue, zero green = magenta.'},
+  {cat:'Software',q:'In 2023, Adobe abandoned its $20B deal to acquire which company?',o:['Canva','Sketch','Framer','Figma'],a:3,why:'Regulatory pressure in the UK and EU ended the deal in December 2023.'},
+  {cat:'Principles',q:'The rule of thirds divides a frame into how many equal parts?',o:['3','6','9','12'],a:2,why:'Two horizontal and two vertical lines make a 3×3 grid of nine parts.'},
+  {cat:'Brands',q:'What creature appears in the Starbucks logo?',o:['A mermaid','A twin-tailed siren','A sea serpent','A nymph'],a:1,why:'A twin-tailed siren from Greek mythology — sailors couldn\'t resist her, you can\'t resist the latte.'},
+  {cat:'Type',q:'Helvetica was originally released in 1957 under which name?',o:['Akzidenz','Neue Haas Grotesk','Univers','Swiss 721'],a:1,why:'Renamed Helvetica (from Helvetia, Latin for Switzerland) in 1960 to sell internationally.'},
+  {cat:'Color',q:'Which color model is subtractive?',o:['RGB','HSL','CMYK','HEX'],a:2,why:'Inks absorb (subtract) light. Screens add light, so RGB is additive.'},
+  {cat:'Principles',q:'Under WCAG AA, the minimum contrast ratio for normal body text is…',o:['3:1','4.5:1','7:1','10:1'],a:1,why:'4.5:1 for normal text, 3:1 for large text. AAA raises it to 7:1.'},
+  {cat:'Software',q:'Sketch, the UI design tool, runs natively only on…',o:['Windows','Linux','macOS','ChromeOS'],a:2,why:'Sketch has always been a native Mac app.'},
+  {cat:'Brands',q:'How many distinct colors are used in the Google wordmark?',o:['3','4','5','6'],a:1,why:'Blue, red, yellow and green — with blue and red each used twice.'},
+  {cat:'Color',q:'Analogous colors are…',o:['Opposite on the wheel','Next to each other on the wheel','Shades of grey','Three evenly spaced hues'],a:1,why:'Neighbours on the wheel — think yellow, yellow-orange, orange.'},
+  {cat:'Principles',q:'Fitts\'s Law predicts the time to hit a target based on its…',o:['Color and contrast','Size and distance','Shape and label','Position in a list'],a:1,why:'Bigger and closer targets are faster to hit — why corners and big buttons win.'},
+  {cat:'Software',q:'Which of these is free, open-source 3D software?',o:['Cinema 4D','Maya','Blender','3ds Max'],a:2,why:'Blender has been open-source since 2002 and is maintained by the Blender Foundation.'},
+  {cat:'Color',q:'Pantone\'s Color of the Year for 2025 was…',o:['Peach Fuzz','Viva Magenta','Very Peri','Mocha Mousse'],a:3,why:'Mocha Mousse (17-1230). Peach Fuzz was 2024, Viva Magenta 2023.'},
+  {cat:'Brands',q:'The three points of the Mercedes-Benz star represent dominance over…',o:['Land, sea and air','Speed, power, luxury','Past, present, future','Three founders'],a:0,why:'Gottlieb Daimler\'s ambition: engines for land, sea and air.'},
+  {cat:'Principles',q:'The Bauhaus school was founded in 1919 by…',o:['Le Corbusier','Walter Gropius','Mies van der Rohe','Paul Rand'],a:1,why:'Gropius founded it in Weimar; Mies was its last director.'}
+];
+const CATS = ['Software','Color','Principles','Type','Brands'];
+const GRADES = [
+  {min:25,letter:'A+',title:'Certified Pixel Wizard',remark:'Flawless. You probably kern your grocery lists and judge restaurants by their menus.'},
+  {min:21,letter:'A',title:'Art Director Energy',remark:'Someone get this person a black turtleneck and an opinion about Helvetica.'},
+  {min:17,letter:'B',title:'Solid Like an 8pt Grid',remark:'Clean, reliable, slightly off on a few margins. Very hireable.'},
+  {min:12,letter:'C',title:'Intern With Potential',remark:'You\'ve opened Figma. Possibly on purpose. Keep going.'},
+  {min:7,letter:'D',title:'Comic Sans Enthusiast',remark:'Comic Sans would be proud of you. That is not a compliment.'},
+  {min:0,letter:'F',title:'Bold. Very Papyrus.',remark:'Did you answer with your eyes closed? Respect the confidence, though.'}
+];
+class Component extends DCLogic {
+  state = { screen:'intro', order:QS.map((_,i)=>i), i:0, picks:[] };
+  componentDidMount(){
+    this.onKey = e => {
+      const s = this.state;
+      if (s.screen!=='quiz') { if (e.key==='Enter' && s.screen==='intro') this.start(); return; }
+      if (['1','2','3','4'].includes(e.key)) this.pick(+e.key-1);
+      if (e.key==='Enter' && s.picks[s.i]!=null) this.next();
+    };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount(){ window.removeEventListener('keydown', this.onKey); }
+  start = () => {
+    const order = QS.map((_,i)=>i);
+    if (this.props.shuffle ?? true) for (let k=order.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[order[k],order[j]]=[order[j],order[k]];}
+    this.setState({screen:'quiz',order,i:0,picks:[]});
+    window.scrollTo(0,0);
+  };
+  pick = (n) => {
+    const {i,picks} = this.state;
+    if (picks[i]!=null) return;
+    const p = picks.slice(); p[i]=n; this.setState({picks:p});
+  };
+  next = () => {
+    const {i} = this.state;
+    if (i>=QS.length-1) { this.setState({screen:'result'}); window.scrollTo(0,0); }
+    else this.setState({i:i+1});
+  };
+  renderVals(){
+    const {screen,order,i,picks} = this.state;
+    const qAt = k => QS[order[k]];
+    const score = picks.reduce((s,p,k)=>s+(p===qAt(k).a?1:0),0);
+    const q = qAt(i);
+    const picked = picks[i];
+    const answered = picked!=null;
+    const opts = q.o.map((text,n)=>{
+      let bg='#FFFDF7',fg='#141414',border='#141414',mark='';
+      if (answered){
+        if (n===q.a){bg='#1F7A45';fg='#FFFFFF';border='#1F7A45';mark='✓';}
+        else if (n===picked){bg='#D7263D';fg='#FFFFFF';border='#D7263D';mark='✕';}
+        else {fg='#8A8578';border='#CFC9BA';}
+      }
+      return {text,key:String(n+1),bg,fg,border,mark,cursor:answered?'default':'pointer',pick:()=>this.pick(n)};
+    });
+    const correct = answered && picked===q.a;
+    const right = ['Nailed it.','Correct. Show-off.','Yes! Chef\'s kiss.','Spot on.','Pixel-perfect.'];
+    const wrong = ['Nope.','Not quite.','Oof. Close-ish.','Swing and a miss.','That\'s a no from the art director.'];
+    const verdict = correct ? right[i%right.length] : wrong[i%wrong.length];
+    const grade = GRADES.find(g=>score>=g.min);
+    const breakdown = CATS.map(c=>{
+      const idx = order.map((o,k)=>k).filter(k=>qAt(k).cat===c);
+      const got = idx.filter(k=>picks[k]===qAt(k).a).length;
+      return {cat:c==='Type'?'Typography':c==='Color'?'Color theory':c==='Brands'?'Brand GK':c,label:got+'/'+idx.length,w:(idx.length?got/idx.length*100:0)+'%'};
+    });
+    const misses = order.map((o,k)=>k).filter(k=>picks[k]!=null && picks[k]!==qAt(k).a).map(k=>({q:qAt(k).q,yours:qAt(k).o[picks[k]],right:qAt(k).o[qAt(k).a]}));
+    return {
+      isIntro:screen==='intro',isQuiz:screen==='quiz',isResult:screen==='result',
+      headerRight: screen==='quiz' ? String(i+1).padStart(2,'0')+' / 25' : screen==='result' ? 'Results' : 'Ready?',
+      q,opts,score,start:this.start,next:this.next,
+      progressPct:((i+(answered?1:0))/QS.length*100)+'%',
+      showFeedback:answered,showExplain:this.props.showExplanations ?? true,
+      verdict,verdictColor:correct?'#1F7A45':'#D7263D',
+      nextLabel:i>=QS.length-1?'See my grade →':'Next question →',
+      grade,pct:Math.round(score/QS.length*100)+'%',breakdown,misses,hasMisses:misses.length>0
+    };
+  }
+}
+</script>
+</body>
+</html>
